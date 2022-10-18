@@ -15,4 +15,8 @@ const getProfile = (req, res, next) => {
   res.json({ message: "get profile data" });
 };
 
-module.exports = { createProfile, getProfile };
+const loginProfile = (req, res, next) => {
+  // TODO: handle login
+};
+
+module.exports = { createProfile, getProfile, loginProfile };

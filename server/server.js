@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 
 //importing the profile route
 const profileRoutes = require("./routers/profile");
+const wcRoutes = require("./routers/wc");
 
 app.use(cors());
 app.use(express.json());
@@ -13,7 +14,8 @@ require("dotenv").config({ path: "./config.env" });
 const port = process.env.PORT || 5001;
 
 //using the route
-app.use("/", profileRoutes);
+app.use("/profile", profileRoutes);
+app.use("/wc", wcRoutes);
 
 mongoose
   .connect(process.env.ATLAS_URI, {
