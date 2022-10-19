@@ -10,15 +10,8 @@ const api = new WooCommerceRestApi({
 
 //   create customer
 const createAccount = (req, res, next) => {
-  const data = {
-    email: "yeexing@whiteroom.work",
-    first_name: "yx",
-    last_name: "sim",
-    username: "yx.sim2",
-  };
-
   api
-    .post("customers", data)
+    .post("customers", req.body.data)
     .then((response) => {
       console.log(response.data);
     })
@@ -30,7 +23,7 @@ const createAccount = (req, res, next) => {
 //get customer by email - not working if it is guest customer, note: guest customer does not create any account
 const getAccountByEmail = (req, res, next) => {
   const data = {
-    email: "yeexing@whiteroom.work",
+    email: "yeexing+2@whiteroom.work",
     first_name: "yx",
     last_name: "sim",
     username: "yx.sim2",
@@ -50,9 +43,9 @@ const getAccountByEmail = (req, res, next) => {
 //   create order
 const createOrder = (req, res, next) => {
   const data = {
-    payment_method: "bacs",
-    payment_method_title: "Direct Bank Transfer",
-    set_paid: true,
+    // payment_method: "bacs",
+    // payment_method_title: "Direct Bank Transfer",
+    set_paid: false,
     customer_id: 3,
     billing: {
       first_name: "yx",
@@ -78,10 +71,11 @@ const createOrder = (req, res, next) => {
     },
     line_items: [
       {
-        product_id: 13,
+        product_id: 12,
         quantity: 1,
       },
     ],
+    coupon_lines: [{ code: "FREE" }],
   };
 
   api
@@ -98,10 +92,41 @@ const createOrder = (req, res, next) => {
 const getOrders = (req, res, next) => {
   //get all orders
   api
-    .get("orders")
+    .get("orders", { per_page: 30 })
     .then((response) => {
       console.log(response);
-      res.json({ message: "success", data: response.data });
+      res.json({
+        message: "success",
+        data: response.data,
+        count: response.data.length,
+      });
+    })
+    .catch((error) => {
+      console.log(error.response.data);
+    });
+
+  //   api
+  //     .get("orders", { billing: { email: data.email } })
+  //     .then((response) => {
+  //       console.log(response);
+  //       res.json({ message: "success", data: response.data });
+  //     })
+  //     .catch((error) => {
+  //       console.log(error.response.data);
+  //     });
+};
+
+const getOrdersByCustId = (req, res, next) => {
+  //get all orders
+  api
+    .get("orders", { customer: 3, per_page: 30 })
+    .then((response) => {
+      console.log(response);
+      res.json({
+        message: "success",
+        data: response.data,
+        count: response.data.length,
+      });
     })
     .catch((error) => {
       console.log(error.response.data);
@@ -130,4 +155,5 @@ module.exports = {
   createOrder,
   getOrders,
   upgrade,
+  getOrdersByCustId,
 };

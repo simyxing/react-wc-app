@@ -1,11 +1,10 @@
 const Profile = require("../models/profile");
 
 const createProfile = async (req, res, next) => {
-  const data = { firstName: "Xing2", email: "yeexing+2@gmail.com" };
-
   try {
-    await Profile.create({ ...data });
-    res.json({ message: "Post new Profile Success" });
+    await Profile.create({ ...req.body.data });
+
+    res.json({ message: "Post new Profile success" });
   } catch (error) {
     res.json({ message: "Post new Profile Failed" });
   }

@@ -10,15 +10,41 @@ const profileSchema = new Schema(
       unique: true,
       minlength: 3,
     },
+    lastName: {
+      type: String,
+      required: true,
+      unique: true,
+      minlength: 3,
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       minlength: 5,
     },
+    wc_username: {
+      type: String,
+      required: true,
+      unique: true,
+      minlength: 5,
+    },
+    wc_password: {
+      type: String,
+      required: true,
+      minlength: 5,
+    },
+    wc_id: {
+      type: Number,
+    },
     type: {
       type: String,
       default: "lite",
+    },
+    selectedPlan: {
+      type: String,
+    },
+    isPendingUpgrade: {
+      type: String,
     },
   },
   { timestamps: true }
