@@ -119,7 +119,7 @@ const getOrders = (req, res, next) => {
 const getOrdersByCustId = (req, res, next) => {
   //get all orders
   api
-    .get("orders", { customer: 3, per_page: 30 })
+    .get("orders", { customer: req.params.id, per_page: 30 })
     .then((response) => {
       console.log(response);
       res.json({

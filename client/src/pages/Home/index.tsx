@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo } from "react";
+import axios from "axios";
+import React, { useEffect, useMemo, useState } from "react";
 //@ts-ignore: getting error Cannot find module './index.module.scss' or its corresponding type declarations.
 import styles from "./index.module.scss";
 
@@ -15,11 +16,19 @@ const Home: React.FC = () => {
     return localStorage.getItem("isPendingPurchase");
   }, []);
 
+  const [orders, setOrders] = useState([]);
+  const [orderCount, setOrderCount] = useState(0);
+
+  const getOrders = async () => {
+    const res = await axios.get(`http://localhost:5001/wc/orders/${5}`);
+    setOrders(res.data.data);
+    setOrderCount(res.data.count);
+  };
+
   useEffect(() => {
     if (isLogin) {
-      if (isPendingPurchase) {
-        // TODO: show request payment message
-      }
+      getOrders();
+      console.log("i am in");
     }
   }, [isLogin, isPendingPurchase]);
 
@@ -27,6 +36,25 @@ const Home: React.FC = () => {
     <div className={styles.container}>
       <h1>Welcome!</h1>
 
+      {/* If user is login and has pendingCheckout in DB, show a link to allow user to make payment */}
+      <a
+        href="http://wcreact.local/wp-json/sand_login/login?username=simyxing@gmail.com"
+        target="popup"
+        onClick={() => {
+          window.open(
+            "http://wcreact.local/wp-json/sand_login/login?username=simyxing@gmail.com",
+            "popup",
+            "width=600,height=600"
+          );
+        }}
+      >
+        Open Link in Popup
+      </a>
+      {/* else show product so they can make purchase of it, modify the following to make it behave like above
+       * check if wc account exist, create if no
+       * redirect them to make payment
+       * if success, close popup and upgrade user account
+       */}
       <div>
         <h2>Products</h2>
 
@@ -40,22 +68,6 @@ const Home: React.FC = () => {
             Upgrade
           </a>
         </div>
-        <a href="http://wcreact.local/wp-json/sand_login/login?username=y.xing1999@gmail.com">
-          Hello
-        </a>
-        <a
-          href="http://wcreact.local/wp-json/sand_login/login?username=y.xing1999@gmail.com"
-          target="popup"
-          onClick={() => {
-            window.open(
-              "http://wcreact.local/wp-json/sand_login/login?username=y.xing1999@gmail.com",
-              "popup",
-              "width=600,height=600"
-            );
-          }}
-        >
-          Open Link in Popup
-        </a>
 
         <div>
           <h3>Product 2: Life time</h3>
@@ -68,7 +80,40 @@ const Home: React.FC = () => {
       </div>
 
       <div>
-        <h2>Past Orders</h2>
+        <h2>Past Orders (Count: {orderCount})</h2>
+        {/* TODO: get orders here */}
+        <table>
+          <tr>
+            <td>id</td>
+            <td>status</td>
+            <td>payment_method</td>
+            <td>customer_id</td>
+            <td>needs_payment</td>
+            <td>total</td>
+            <td>payment_url</td>
+          </tr>
+          {orders.map(
+            (o: {
+              id;
+              status;
+              payment_method;
+              customer_id;
+              needs_payment;
+              total;
+              payment_url;
+            }) => (
+              <tr>
+                <td>{o.id}</td>
+                <td>{o.status}</td>
+                <td>{o.payment_method}</td>
+                <td>{o.customer_id}</td>
+                <td>{`${o.needs_payment}`}</td>
+                <td>{o.total}</td>
+                <td>{o.needs_payment && <a href={o.payment_url}>Pay</a>}</td>
+              </tr>
+            )
+          )}
+        </table>
       </div>
     </div>
   );
