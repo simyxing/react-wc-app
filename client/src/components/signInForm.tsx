@@ -1,21 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   orderId?: number;
 };
 
 const SignInForm: React.FC<Props> = () => {
+  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
+
+  const handleSignIn = () => {
+    localStorage.setItem("email", email);
+
+    navigate("/");
+  };
+
+  const onChange = (e) => {
+    setEmail(e.target.value);
+  };
   return (
     <>
-      <form>
+      <form onSubmit={handleSignIn}>
         <div>
-          <label>Email</label>
-          <input type={"email"} name="email" />
+          <label>Email (Must enter a valid user email)</label>
+          <input type={"email"} name="email" onChange={onChange} />
         </div>
-        <div>
-          <label>Password</label>
-          <input type={"password"} name="password" />
-        </div>
+        <button type="submit">Sign In</button>
       </form>
     </>
   );
