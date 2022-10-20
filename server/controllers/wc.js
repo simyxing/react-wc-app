@@ -117,9 +117,13 @@ const getOrders = (req, res, next) => {
 };
 
 const getOrdersByCustId = (req, res, next) => {
-  //get all orders
+  //get all orders base on product (plus product only)
   api
-    .get("orders", { customer: req.params.id, per_page: 30 })
+    .get("orders", {
+      customer: req.params.id,
+      per_page: 30,
+      product: req.query.productId,
+    })
     .then((response) => {
       console.log(response);
       res.json({
@@ -131,16 +135,24 @@ const getOrdersByCustId = (req, res, next) => {
     .catch((error) => {
       console.log(error.response.data);
     });
+};
 
-  //   api
-  //     .get("orders", { billing: { email: data.email } })
-  //     .then((response) => {
-  //       console.log(response);
-  //       res.json({ message: "success", data: response.data });
-  //     })
-  //     .catch((error) => {
-  //       console.log(error.response.data);
-  //     });
+const getSubscription = (req, res, next) => {
+  //get all subscription orders
+  api
+    // .get("subscriptions/63")
+    .get("subscriptions/62/orders")
+    .then((response) => {
+      console.log(response);
+      res.json({
+        message: "success",
+        data: response.data,
+        count: response.data.length,
+      });
+    })
+    .catch((error) => {
+      console.log(error.response.data);
+    });
 };
 
 const upgrade = (req, res, next) => {
@@ -156,4 +168,5 @@ module.exports = {
   getOrders,
   upgrade,
   getOrdersByCustId,
+  getSubscription,
 };

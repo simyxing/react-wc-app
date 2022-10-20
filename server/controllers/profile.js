@@ -10,12 +10,14 @@ const createProfile = async (req, res, next) => {
   }
 };
 
-const getProfile = (req, res, next) => {
-  res.json({ message: "get profile data" });
+const getProfile = async (req, res, next) => {
+  try {
+    const userData = await Profile.findOne({ email: req.query.email });
+
+    res.json({ data: userData });
+  } catch (error) {
+    throw error;
+  }
 };
 
-const loginProfile = (req, res, next) => {
-  // TODO: handle login
-};
-
-module.exports = { createProfile, getProfile, loginProfile };
+module.exports = { createProfile, getProfile };

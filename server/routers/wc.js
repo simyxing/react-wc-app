@@ -10,5 +10,6 @@ router.get("/orders", wcController.getOrders);
 router.get("/order", wcController.createOrder);
 router.post("/upgrade/:id", wcController.upgrade);
 router.get("/orders/:id", wcController.getOrdersByCustId);
+router.get("/subscriptions", wcController.getSubscription);
 
 module.exports = router;
