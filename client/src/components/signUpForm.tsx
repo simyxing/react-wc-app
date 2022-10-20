@@ -17,10 +17,10 @@ const SignUpForm: React.FC<Props> = () => {
       isPendingUpgrade: true,
     };
 
-    const res = await axios.post("http://localhost:5001/profile/profile", {
+    await axios.post("http://localhost:5001/profile/profile", {
       data: data,
     });
-    const res2 = await axios.post("http://localhost:5001/wc/create-account", {
+    await axios.post("http://localhost:5001/wc/create-account", {
       data: {
         email: data.email,
         first_name: data.firstName,
@@ -29,7 +29,6 @@ const SignUpForm: React.FC<Props> = () => {
         password: data.wc_password,
       },
     });
-    console.log(res, res2);
 
     localStorage.setItem("email", data.email);
   };
@@ -63,7 +62,7 @@ const SignUpForm: React.FC<Props> = () => {
       <form onSubmit={signUpWithPlanSelected}>
         <button type="submit">Sign Up With PLUS Plan Selected</button>
       </form>
-
+      <br />
       <form onSubmit={signUp}>
         <button type="submit">Sign Up</button>
       </form>

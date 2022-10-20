@@ -10,6 +10,9 @@ const SignInForm: React.FC<Props> = () => {
   const navigate = useNavigate();
 
   const handleSignIn = () => {
+    if (!email) {
+      return;
+    }
     localStorage.setItem("email", email);
 
     navigate("/");
@@ -23,8 +26,11 @@ const SignInForm: React.FC<Props> = () => {
       <form onSubmit={handleSignIn}>
         <div>
           <label>Email (Must enter a valid user email)</label>
+          <br />
+          <br />
           <input type={"email"} name="email" onChange={onChange} />
         </div>
+        <br />
         <button type="submit">Sign In</button>
       </form>
     </>

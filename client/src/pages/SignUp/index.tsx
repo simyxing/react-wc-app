@@ -22,6 +22,7 @@ const SignUp: React.FC = () => {
       <div className={styles.wrapper}>
         <SignUpForm />
       </div>
+      <hr />
       <div className={styles.wrapper}>
         <SignInForm />
       </div>
