@@ -37,33 +37,27 @@ const Home: React.FC = () => {
   const getOrders = useCallback(async () => {
     console.log("i am in");
 
-    if (!userData.selectedPlan) {
-      return;
-    }
-
     const res = await axios.get(
       `http://localhost:5001/wc/orders/${userData.wc_id}`,
       {
-        params: { productId: userData.selectedPlan === "plus" ? 12 : 13 },
+        params: { productId: 13 },
       }
     );
     setOrders(res.data.data);
     setOrderCount(res.data.count);
-  }, [userData.selectedPlan, userData.wc_id]);
+  }, [userData.wc_id]);
 
   const getSubscriptionOrders = useCallback(async () => {
-    if (!userData.selectedPlan) {
-      return;
-    }
+    console.log(userData.wc_id);
     const res = await axios.get(
       `http://localhost:5001/wc/orders/${userData.wc_id}`,
       {
-        params: { productId: userData.selectedPlan === "plus" ? 12 : 13 },
+        params: { productId: 12 },
       }
     );
     setSubscriptionOrders(res.data.data);
     setSubscriptionOrderCount(res.data.count);
-  }, [userData.selectedPlan, userData.wc_id]);
+  }, [userData.wc_id]);
 
   useEffect(() => {
     console.log(isLogin);
@@ -133,6 +127,17 @@ const Home: React.FC = () => {
       `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${
         userData.wc_username
       }&product=${selected === "plus" ? 13 : 12}&pass=${userData.wc_password}`,
+      "popup",
+      "width=600,height=600"
+    );
+  };
+
+  const handlePay = async (paymentUrl: string) => {
+    console.log(userData.wc_username, userData.wc_password, paymentUrl);
+    window.open(
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/payment?username=${
+        userData.wc_username
+      }&pass=${userData.wc_password}&link=${encodeURIComponent(paymentUrl)}`,
       "popup",
       "width=600,height=600"
     );
@@ -211,14 +216,20 @@ const Home: React.FC = () => {
               total;
               payment_url;
             }) => (
-              <tr>
+              <tr key={o.id}>
                 <td>{o.id}</td>
                 <td>{o.status}</td>
                 <td>{o.payment_method}</td>
                 <td>{o.customer_id}</td>
                 <td>{`${o.needs_payment}`}</td>
                 <td>{o.total}</td>
-                <td>{o.needs_payment && <a href={o.payment_url}>Pay</a>}</td>
+                <td>
+                  {o.needs_payment && (
+                    <button onClick={() => handlePay(o.payment_url)}>
+                      Pay
+                    </button>
+                  )}
+                </td>
               </tr>
             )
           )}
@@ -246,14 +257,20 @@ const Home: React.FC = () => {
               total;
               payment_url;
             }) => (
-              <tr>
+              <tr key={o.id}>
                 <td>{o.id}</td>
                 <td>{o.status}</td>
                 <td>{o.payment_method}</td>
                 <td>{o.customer_id}</td>
                 <td>{`${o.needs_payment}`}</td>
                 <td>{o.total}</td>
-                <td>{o.needs_payment && <a href={o.payment_url}>Pay</a>}</td>
+                <td>
+                  {o.needs_payment && (
+                    <button onClick={() => handlePay(o.payment_url)}>
+                      Pay
+                    </button>
+                  )}
+                </td>
               </tr>
             )
           )}
