@@ -1,3 +1,5 @@
+const Profile = require("../models/profile");
+
 const WooCommerceRestApi = require("@woocommerce/woocommerce-rest-api").default;
 require("dotenv").config({ path: "./config.env" });
 
@@ -13,10 +15,14 @@ const createAccount = (req, res, next) => {
   api
     .post("customers", req.body.data)
     .then((response) => {
-      console.log(response.data);
+      Profile.updateOne(
+        { email: req.body.data.email },
+        { wc_id: response.data.id }
+      ).exec();
+      res.json({ message: "WC account created" });
     })
     .catch((error) => {
-      console.log(error.response.data);
+      throw error;
     });
 };
 

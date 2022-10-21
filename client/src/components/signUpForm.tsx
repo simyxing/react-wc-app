@@ -6,18 +6,19 @@ type Props = {
 };
 
 const SignUpForm: React.FC<Props> = () => {
-  const signUpWithPlanSelected = async () => {
+  const signUpWithPlanSelected = async (plan: string) => {
     const data = {
-      firstName: "Xing2",
-      lastName: "test",
-      email: "y.xing1999@gmail.com", // "yeexing+2@whiteroom.work",
-      wc_username: "yxing99", // "yeexing+2",
+      firstName: "yxing 2",
+      lastName: "subs",
+      email: "simyxing2subscription@gmail.com",
+      wc_username: "yxing2subscription",
       wc_password: randomPasswordGenerator(),
-      selectedPlan: "plus",
+      selectedPlan: plan,
       isPendingUpgrade: true,
+      type: "lite",
     };
 
-    await axios.post("http://localhost:5001/profile/profile", {
+    await axios.post("http://localhost:5001/profile", {
       data: data,
     });
     await axios.post("http://localhost:5001/wc/create-account", {
@@ -33,15 +34,18 @@ const SignUpForm: React.FC<Props> = () => {
     localStorage.setItem("email", data.email);
   };
 
+  // FIXME: having error here
   const signUp = async () => {
     const data = {
-      firstName: "Xing 3",
-      lastName: "test",
-      email: "yeexing+3@whiteroom.work",
+      firstName: "yxing 1",
+      lastName: "without WC",
+      email: "simyxingnowc@gmail.com",
+      type: "lite",
     };
 
-    await axios.post("/profile/create-account", { data: data });
-
+    await axios.post("http://localhost:5001/profile", {
+      data: data,
+    });
     localStorage.setItem("email", data.email);
   };
 
@@ -59,9 +63,22 @@ const SignUpForm: React.FC<Props> = () => {
   };
   return (
     <>
-      <form onSubmit={signUpWithPlanSelected}>
-        <button type="submit">Sign Up With PLUS Plan Selected</button>
-      </form>
+      Sign Up &amp; Create WC account
+      <br />
+      <button type="submit" onClick={() => signUpWithPlanSelected("plus")}>
+        Sign Up With PLUS Plan Selected
+      </button>
+      <br />
+      <br />
+      <button
+        type="submit"
+        onClick={() => signUpWithPlanSelected("subscription")}
+      >
+        Sign Up With SUBSCRIPTION Plan Selected
+      </button>
+      <br />
+      <br />
+      Sign Up only
       <br />
       <form onSubmit={signUp}>
         <button type="submit">Sign Up</button>

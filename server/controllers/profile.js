@@ -20,4 +20,35 @@ const getProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { createProfile, getProfile };
+const upgradeProfile = async (req, res, next) => {
+  try {
+    console.log(req.query);
+    const userData = await Profile.findOneAndUpdate(
+      { email: req.query.email },
+      {
+        ...(req.query.expiredAt && { expiredDate: req.query.expiredAt }),
+        type: "plus",
+        isPendingUpgrade: false,
+      }
+    );
+
+    res.json({ data: userData });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateProfile = async (req, res, next) => {
+  try {
+    console.log(req.query);
+    const userData = await Profile.findByIdAndUpdate(req.params.id, {
+      ...req.body.data,
+    });
+
+    res.json({ data: userData });
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = { createProfile, getProfile, upgradeProfile, updateProfile };

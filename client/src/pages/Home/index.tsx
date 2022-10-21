@@ -4,11 +4,8 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./index.module.scss";
 
 const Home: React.FC = () => {
-  const firstName = "yeexing 1";
-  const lastName = "sim";
-  const email = "yeexing+test@whiteroom.work";
-
   const [userData, setUserData] = useState({
+    id: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -34,7 +31,7 @@ const Home: React.FC = () => {
     const res = await axios.get(`http://localhost:5001/profile`, {
       params: { email: isLogin },
     });
-    setUserData(res.data.data);
+    setUserData({ id: res.data.data._id, ...res.data.data });
   }, [isLogin]);
 
   const getOrders = useCallback(async () => {
@@ -77,27 +74,99 @@ const Home: React.FC = () => {
     }
   }, [getOrders, getSubscriptionOrders, getUser, isLogin]);
 
-  const email1 = "yeexing";
+  const randomPasswordGenerator = () => {
+    var chars =
+      "0123456789abcdefghijklmnopqrstuvwxyz!@#$%^&*()ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var passwordLength = 12;
+    var password = "";
+    for (var i = 0; i <= passwordLength; i++) {
+      var randomNumber = Math.floor(Math.random() * chars.length);
+      password += chars.substring(randomNumber, randomNumber + 1);
+    }
+
+    return password;
+  };
+
+  // for Logged In user
+  // purchase PLUS product
+  const purchasePLUS = async (productId: number) => {
+    if (!userData.wc_username || !userData.wc_password) {
+      console.log("user has no account");
+      // generate wc username & password
+      // create wc account
+      // & update profile
+      const wc_username = "yxnoacc";
+      const wc_password = randomPasswordGenerator();
+      await axios.put(`http://localhost:5001/profile/${userData.id}`, {
+        data: {
+          wc_username: wc_username,
+          wc_password: wc_password,
+        },
+      });
+
+      await axios.post("http://localhost:5001/wc/create-account", {
+        data: {
+          email: userData.email,
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          username: wc_username,
+          password: wc_password,
+        },
+      });
+
+      window.open(
+        `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${wc_username}&product=${productId}&pass=${wc_password}`,
+        "popup",
+        "width=600,height=600"
+      );
+      return;
+    }
+    window.open(
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${userData.wc_username}&product=${productId}&pass=${userData.wc_password}`,
+      "popup",
+      "width=600,height=600"
+    );
+  };
+
+  const handlePurchase = async (selected: string) => {
+    window.open(
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${
+        userData.wc_username
+      }&product=${selected === "plus" ? 13 : 12}&pass=${userData.wc_password}`,
+      "popup",
+      "width=600,height=600"
+    );
+  };
 
   return (
     <div className={styles.container}>
       <h1>Welcome!</h1>
+      {userData.id}
+      <br />
+      {userData.firstName}
+      <br />
+      {userData.lastName}
+      <br />
+      {userData.email}
+      <br />
+      {userData.wc_username}
+      <br />
+      {userData.wc_password}
+      <br />
+      {userData.wc_id}
+      <br />
+      {userData.type}
+      <br />
+      {userData.selectedPlan}
+      <br />
+      {userData.isPendingUpgrade}
+      <br />
 
       {/* If user is login and has pendingCheckout in DB, show a link to allow user to make payment */}
-      {isLogin && userData.isPendingUpgrade && (
-        <a
-          href={`http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${email1}&product=13&pass=yeexing`}
-          target="popup"
-          onClick={() => {
-            window.open(
-              `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${email1}&product=13&pass=yeexing`,
-              "popup",
-              "width=600,height=600"
-            );
-          }}
-        >
-          Open Link in Popup
-        </a>
+      {isLogin && userData.type === "lite" && userData.isPendingUpgrade && (
+        <button onClick={() => handlePurchase(userData.selectedPlan)}>
+          Upgrade to selected plan: {userData.selectedPlan}
+        </button>
       )}
       {/* else show product so they can make purchase of it, modify the following to make it behave like above
        * check if wc account exist, create if no
@@ -105,26 +174,18 @@ const Home: React.FC = () => {
        * if success, close popup and upgrade user account
        */}
       <div>
-        <h2>Products</h2>
+        <h2>Products (Presume this is see after logged in)</h2>
 
         <div>
           <h3>Product 1: Subscription</h3>
-          <a
-            target="_blank"
-            href={`http://wcreact.local/cart?add-to-cart=12&firstname=${firstName}&lastname=${lastName}&email=${email}`}
-            rel="noreferrer"
-          >
-            Upgrade
-          </a>
+          <button onClick={() => purchasePLUS(12)}>
+            Upgrade to SUBSCRIPTION plan
+          </button>
         </div>
 
         <div>
           <h3>Product 2: Life time</h3>
-          <a
-            href={`http://wcreact.local/cart?add-to-cart=13&firstname=${firstName}&lastname=${lastName}&email=${email}`}
-          >
-            Upgrade
-          </a>
+          <button onClick={() => purchasePLUS(13)}>Upgrade to PLUS</button>
         </div>
       </div>
 

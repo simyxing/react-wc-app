@@ -7,13 +7,11 @@ const profileSchema = new Schema(
     firstName: {
       type: String,
       required: true,
-      unique: true,
       minlength: 3,
     },
     lastName: {
       type: String,
       required: true,
-      unique: true,
       minlength: 3,
     },
     email: {
@@ -24,16 +22,15 @@ const profileSchema = new Schema(
     },
     wc_username: {
       type: String,
-      required: true,
       unique: true,
       minlength: 5,
     },
     wc_password: {
       type: String,
-      required: true,
       minlength: 5,
     },
     wc_id: {
+      unique: true,
       type: Number,
     },
     type: {
@@ -44,7 +41,10 @@ const profileSchema = new Schema(
       type: String,
     },
     isPendingUpgrade: {
-      type: String,
+      type: Boolean,
+    },
+    expiredDate: {
+      type: Date,
     },
   },
   { timestamps: true }
