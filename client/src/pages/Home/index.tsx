@@ -35,7 +35,6 @@ const Home: React.FC = () => {
   }, [isLogin]);
 
   const getOrders = useCallback(async () => {
-    console.log("i am in");
     if (!userData.wc_id) {
       return;
     }
@@ -62,7 +61,6 @@ const Home: React.FC = () => {
   }, [userData.wc_id]);
 
   useEffect(() => {
-    console.log(isLogin);
     if (isLogin) {
       getUser();
       getOrders();
@@ -87,7 +85,6 @@ const Home: React.FC = () => {
   // purchase PLUS product
   const purchasePLUS = async (productId: number) => {
     if (!userData.wc_username || !userData.wc_password || !userData.wc_id) {
-      console.log("user has no account");
       // generate wc username & password
       // create wc account
       // & update profile
@@ -113,7 +110,7 @@ const Home: React.FC = () => {
       window.open(
         `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${encodeURIComponent(
           userData.email
-        )}&product=${productId}&pass=${wc_password}`,
+        )}&product=${productId}&pass=${encodeURIComponent(wc_password)}`,
         "popup",
         "width=600,height=600"
       );
@@ -122,7 +119,7 @@ const Home: React.FC = () => {
     window.open(
       `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${encodeURIComponent(
         userData.email
-      )}&product=${productId}&pass=${userData.wc_password}`,
+      )}&product=${productId}&pass=${encodeURIComponent(userData.wc_password)}`,
       "popup",
       "width=600,height=600"
     );
@@ -132,18 +129,21 @@ const Home: React.FC = () => {
     window.open(
       `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${encodeURIComponent(
         userData.email
-      )}&product=${selected === "plus" ? 13 : 12}&pass=${userData.wc_password}`,
+      )}&product=${selected === "plus" ? 13 : 12}&pass=${encodeURIComponent(
+        userData.wc_password
+      )}`,
       "popup",
       "width=600,height=600"
     );
   };
 
   const handlePay = async (paymentUrl: string) => {
-    console.log(userData.wc_username, userData.wc_password, paymentUrl);
     window.open(
       `http://wcreact.local/wp-json/wr_wc_react_auto_login/payment?username=${encodeURIComponent(
         userData.email
-      )}&pass=${userData.wc_password}&link=${encodeURIComponent(paymentUrl)}`,
+      )}&pass=${encodeURIComponent(
+        userData.wc_password
+      )}&link=${encodeURIComponent(paymentUrl)}`,
       "popup",
       "width=600,height=600"
     );
@@ -154,7 +154,9 @@ const Home: React.FC = () => {
     window.open(
       `http://wcreact.local/wp-json/wr_wc_react_auto_login/payment?username=${encodeURIComponent(
         userData.email
-      )}&pass=${userData.wc_password}&link=${encodeURIComponent(renewalURL)}`,
+      )}&pass=${encodeURIComponent(
+        userData.wc_password
+      )}&link=${encodeURIComponent(renewalURL)}`,
       "popup",
       "width=600,height=600"
     );
@@ -165,6 +167,8 @@ const Home: React.FC = () => {
     await axios.put(
       `http://wcreact.local/wp-json/wr_wc_react/update_status?subscription=${subId}&status=pending-cancel`
     );
+
+    getSubscriptions();
   };
 
   //call api to reactivate subscription
@@ -172,6 +176,7 @@ const Home: React.FC = () => {
     await axios.put(
       `http://wcreact.local/wp-json/wr_wc_react/update_status?subscription=${subId}&status=active`
     );
+    getSubscriptions();
   };
 
   return (
@@ -227,7 +232,7 @@ const Home: React.FC = () => {
 
       <div>
         <h2>Past Orders (Count: {orderCount})</h2>
-        <table>
+        <table border={1}>
           <tr>
             <td>id</td>
             <td>status</td>
@@ -268,7 +273,7 @@ const Home: React.FC = () => {
       </div>
       <div>
         <h2>Subscriptions (Count: {subscriptionsCount})</h2>
-        <table>
+        <table border={1}>
           <tr>
             <td>id</td>
             <td>status</td>
@@ -277,6 +282,7 @@ const Home: React.FC = () => {
             <td>total</td>
             <td>next_payment_date_gmt</td>
             <td>cancelled_date_gmt</td>
+            <td>end_date_gmt</td>
           </tr>
           {subscriptions.map(
             (s: {
@@ -288,6 +294,7 @@ const Home: React.FC = () => {
               payment_url;
               next_payment_date_gmt;
               cancelled_date_gmt;
+              end_date_gmt;
               test;
             }) => (
               <>
@@ -299,6 +306,7 @@ const Home: React.FC = () => {
                   <td>{s.total}</td>
                   <td>{s.next_payment_date_gmt}</td>
                   <td>{s.cancelled_date_gmt}</td>
+                  <td>{s.end_date_gmt}</td>
                   <td>
                     {!s.needs_payment && s.status === "active" && (
                       <button onClick={() => handleRenewNow(s.id)}>
@@ -324,8 +332,8 @@ const Home: React.FC = () => {
                 </tr>
 
                 <tr>
-                  <td colSpan={5}>
-                    <table>
+                  <td colSpan={9}>
+                    <table border={1}>
                       <tr>
                         <td>Order Details:</td>
                       </tr>
@@ -370,7 +378,9 @@ const Home: React.FC = () => {
                     </table>
                   </td>
                 </tr>
-                <br />
+                <tr>
+                  <td colSpan={9}>End of One Subscription</td>
+                </tr>
               </>
             )
           )}
