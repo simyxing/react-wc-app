@@ -22,7 +22,6 @@ const getProfile = async (req, res, next) => {
 
 const upgradeProfile = async (req, res, next) => {
   try {
-    console.log(req.query);
     const userData = await Profile.findOneAndUpdate(
       { email: req.query.email },
       {
@@ -40,7 +39,6 @@ const upgradeProfile = async (req, res, next) => {
 
 const updateProfile = async (req, res, next) => {
   try {
-    console.log(req.query);
     const userData = await Profile.findByIdAndUpdate(req.params.id, {
       ...req.body.data,
     });
