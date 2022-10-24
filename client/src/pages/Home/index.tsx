@@ -23,8 +23,6 @@ const Home: React.FC = () => {
 
   const [orders, setOrders] = useState([]);
   const [orderCount, setOrderCount] = useState(0);
-  const [subscriptionOrders, setSubscriptionOrders] = useState([]);
-  const [subscriptionOrderCount, setSubscriptionOrderCount] = useState(0);
   const [subscriptions, setSubscriptions] = useState([]);
   const [subscriptionsCount, setSubscriptionsCount] = useState(0);
 
@@ -52,21 +50,6 @@ const Home: React.FC = () => {
     setOrderCount(res.data.count);
   }, [userData.wc_id]);
 
-  const getSubscriptionOrders = useCallback(async () => {
-    if (!userData.wc_id) {
-      return;
-    }
-    console.log(userData.wc_id);
-    const res = await axios.get(
-      `http://localhost:5001/wc/orders/${userData.wc_id}`,
-      {
-        params: { productId: 12 },
-      }
-    );
-    setSubscriptionOrders(res.data.data);
-    setSubscriptionOrderCount(res.data.count);
-  }, [userData.wc_id]);
-
   const getSubscriptions = useCallback(async () => {
     if (!userData.wc_id) {
       return;
@@ -83,10 +66,9 @@ const Home: React.FC = () => {
     if (isLogin) {
       getUser();
       getOrders();
-      getSubscriptionOrders();
       getSubscriptions();
     }
-  }, [getOrders, getSubscriptionOrders, getSubscriptions, getUser, isLogin]);
+  }, [getOrders, getSubscriptions, getUser, isLogin]);
 
   const randomPasswordGenerator = () => {
     var chars =
@@ -256,47 +238,6 @@ const Home: React.FC = () => {
             <td>payment_url</td>
           </tr>
           {orders.map(
-            (o: {
-              id;
-              status;
-              payment_method;
-              customer_id;
-              needs_payment;
-              total;
-              payment_url;
-            }) => (
-              <tr key={o.id}>
-                <td>{o.id}</td>
-                <td>{o.status}</td>
-                <td>{o.payment_method}</td>
-                <td>{o.customer_id}</td>
-                <td>{`${o.needs_payment}`}</td>
-                <td>{o.total}</td>
-                <td>
-                  {o.needs_payment && (
-                    <button onClick={() => handlePay(o.payment_url)}>
-                      Pay
-                    </button>
-                  )}
-                </td>
-              </tr>
-            )
-          )}
-        </table>
-      </div>
-      <div>
-        <h2>Subscriptions Orders (Count: {subscriptionOrderCount})</h2>
-        <table>
-          <tr>
-            <td>id</td>
-            <td>status</td>
-            <td>payment_method</td>
-            <td>customer_id</td>
-            <td>needs_payment</td>
-            <td>total</td>
-            <td>payment_url</td>
-          </tr>
-          {subscriptionOrders.map(
             (o: {
               id;
               status;
