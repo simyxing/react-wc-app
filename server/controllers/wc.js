@@ -95,8 +95,8 @@ const createOrder = (req, res, next) => {
     });
 };
 
+//get all orders
 const getOrders = (req, res, next) => {
-  //get all orders
   api
     .get("orders", { per_page: 30 })
     .then((response) => {
@@ -139,7 +139,7 @@ const getOrdersByCustId = (req, res, next) => {
       });
     })
     .catch((error) => {
-      console.log(error.response.data);
+      console.log(error);
     });
 };
 
@@ -161,6 +161,67 @@ const getSubscription = (req, res, next) => {
     });
 };
 
+// get subscriptions only
+// const getSubscriptionsByCustId = (req, res, next) => {
+//   api
+//     .get("subscriptions", {
+//       customer: req.params.id,
+//       per_page: 30,
+//     })
+//     .then((response) => {
+//       res.json({
+//         message: "success",
+//         data: response.data,
+//         count: response.data.length,
+//       });
+//     })
+//     .catch((error) => {
+//       console.log(error.response.data);
+//     });
+// };
+
+const getSubscriptionsByCustId = (req, res, next) => {
+  api
+    .get("subscriptions", {
+      customer: req.params.id,
+      per_page: 30,
+    })
+    .then((response) => {
+      return response.data;
+      // res.json({
+      //   message: "success",
+      //   data: response.data,
+      //   count: response.data.length,
+      // });
+    })
+    .then(async (result) => {
+      const a = await Promise.all(
+        result.map(async (element) => {
+          const orders = await api
+            .get(`subscriptions/${element.id}/orders`)
+            .then((response) => {
+              return response.data;
+            })
+            .catch((error) => {
+              console.log(error.response.data);
+            });
+
+          return { ...element, test: orders };
+        })
+      );
+
+      console.log(a);
+      res.json({
+        message: "success",
+        data: a,
+        count: result.length,
+      });
+    })
+    .catch((error) => {
+      console.log(error.response.data);
+    });
+};
+
 const upgrade = (req, res, next) => {
   //get all orders
   console.log(req.params);
@@ -175,4 +236,5 @@ module.exports = {
   upgrade,
   getOrdersByCustId,
   getSubscription,
+  getSubscriptionsByCustId,
 };

@@ -25,6 +25,8 @@ const Home: React.FC = () => {
   const [orderCount, setOrderCount] = useState(0);
   const [subscriptionOrders, setSubscriptionOrders] = useState([]);
   const [subscriptionOrderCount, setSubscriptionOrderCount] = useState(0);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [subscriptionsCount, setSubscriptionsCount] = useState(0);
 
   //get user info from DB
   const getUser = useCallback(async () => {
@@ -36,6 +38,9 @@ const Home: React.FC = () => {
 
   const getOrders = useCallback(async () => {
     console.log("i am in");
+    if (!userData.wc_id) {
+      return;
+    }
 
     const res = await axios.get(
       `http://localhost:5001/wc/orders/${userData.wc_id}`,
@@ -48,6 +53,9 @@ const Home: React.FC = () => {
   }, [userData.wc_id]);
 
   const getSubscriptionOrders = useCallback(async () => {
+    if (!userData.wc_id) {
+      return;
+    }
     console.log(userData.wc_id);
     const res = await axios.get(
       `http://localhost:5001/wc/orders/${userData.wc_id}`,
@@ -59,14 +67,26 @@ const Home: React.FC = () => {
     setSubscriptionOrderCount(res.data.count);
   }, [userData.wc_id]);
 
+  const getSubscriptions = useCallback(async () => {
+    if (!userData.wc_id) {
+      return;
+    }
+    const res = await axios.get(
+      `http://localhost:5001/wc/subscriptions/${userData.wc_id}`
+    );
+    setSubscriptions(res.data.data);
+    setSubscriptionsCount(res.data.count);
+  }, [userData.wc_id]);
+
   useEffect(() => {
     console.log(isLogin);
     if (isLogin) {
       getUser();
       getOrders();
       getSubscriptionOrders();
+      getSubscriptions();
     }
-  }, [getOrders, getSubscriptionOrders, getUser, isLogin]);
+  }, [getOrders, getSubscriptionOrders, getSubscriptions, getUser, isLogin]);
 
   const randomPasswordGenerator = () => {
     var chars =
@@ -84,7 +104,7 @@ const Home: React.FC = () => {
   // for Logged In user
   // purchase PLUS product
   const purchasePLUS = async (productId: number) => {
-    if (!userData.wc_username || !userData.wc_password) {
+    if (!userData.wc_username || !userData.wc_password || !userData.wc_id) {
       console.log("user has no account");
       // generate wc username & password
       // create wc account
@@ -109,14 +129,18 @@ const Home: React.FC = () => {
       });
 
       window.open(
-        `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${wc_username}&product=${productId}&pass=${wc_password}`,
+        `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${encodeURIComponent(
+          userData.email
+        )}&product=${productId}&pass=${wc_password}`,
         "popup",
         "width=600,height=600"
       );
       return;
     }
     window.open(
-      `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${userData.wc_username}&product=${productId}&pass=${userData.wc_password}`,
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${encodeURIComponent(
+        userData.email
+      )}&product=${productId}&pass=${userData.wc_password}`,
       "popup",
       "width=600,height=600"
     );
@@ -124,9 +148,9 @@ const Home: React.FC = () => {
 
   const handlePurchase = async (selected: string) => {
     window.open(
-      `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${
-        userData.wc_username
-      }&product=${selected === "plus" ? 13 : 12}&pass=${userData.wc_password}`,
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${encodeURIComponent(
+        userData.email
+      )}&product=${selected === "plus" ? 13 : 12}&pass=${userData.wc_password}`,
       "popup",
       "width=600,height=600"
     );
@@ -135,9 +159,20 @@ const Home: React.FC = () => {
   const handlePay = async (paymentUrl: string) => {
     console.log(userData.wc_username, userData.wc_password, paymentUrl);
     window.open(
-      `http://wcreact.local/wp-json/wr_wc_react_auto_login/payment?username=${
-        userData.wc_username
-      }&pass=${userData.wc_password}&link=${encodeURIComponent(paymentUrl)}`,
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/payment?username=${encodeURIComponent(
+        userData.email
+      )}&pass=${userData.wc_password}&link=${encodeURIComponent(paymentUrl)}`,
+      "popup",
+      "width=600,height=600"
+    );
+  };
+
+  const handleRenewNow = async (subId: string) => {
+    const renewalURL = `http://wcreact.local/my-account/?subscription_renewal_early=${subId}&subscription_renewal=true`;
+    window.open(
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/payment?username=${encodeURIComponent(
+        userData.email
+      )}&pass=${userData.wc_password}&link=${encodeURIComponent(renewalURL)}`,
       "popup",
       "width=600,height=600"
     );
@@ -272,6 +307,98 @@ const Home: React.FC = () => {
                   )}
                 </td>
               </tr>
+            )
+          )}
+        </table>
+      </div>
+      <div>
+        <h2>Subscriptions (Count: {subscriptionsCount})</h2>
+        <table>
+          <tr>
+            <td>id</td>
+            <td>status</td>
+            <td>payment_method</td>
+            <td>needs_payment</td>
+            <td>total</td>
+            <td>payment_url</td>
+          </tr>
+          {subscriptions.map(
+            (s: {
+              id;
+              status;
+              payment_method;
+              needs_payment;
+              total;
+              payment_url;
+              next_payment_date_gmt;
+              test;
+            }) => (
+              <>
+                <tr key={s.id}>
+                  <td>{s.id}</td>
+                  <td>{s.status}</td>
+                  <td>{s.payment_method}</td>
+                  <td>{`${s.needs_payment}`}</td>
+                  <td>{s.total}</td>
+                  <td>{s.next_payment_date_gmt}</td>
+                  <td>
+                    {!s.needs_payment && s.status === "active" && (
+                      <button onClick={() => handleRenewNow(s.id)}>
+                        Renew Now
+                      </button>
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td colSpan={5}>
+                    <table>
+                      <tr>
+                        <td>Order Details:</td>
+                      </tr>
+                      <tr>
+                        <td>id</td>
+                        <td>status</td>
+                        <td>payment_method</td>
+                        <td>date_paid</td>
+                        <td>needs_payment</td>
+                        <td>total</td>
+                        <td>payment_url</td>
+                      </tr>
+                      {s.test.map(
+                        (o: {
+                          id;
+                          status;
+                          payment_method;
+                          date_paid;
+                          needs_payment;
+                          total;
+                          payment_url;
+                        }) => (
+                          <tr key={o.id}>
+                            <td>{o.id}</td>
+                            <td>{o.status}</td>
+                            <td>{o.payment_method}</td>
+                            <td>{o.date_paid}</td>
+                            <td>{`${o.needs_payment}`}</td>
+                            <td>{o.total}</td>
+                            <td>
+                              {o.needs_payment && (
+                                <button
+                                  onClick={() => handlePay(o.payment_url)}
+                                >
+                                  Pay
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </table>
+                  </td>
+                </tr>
+                <br />
+              </>
             )
           )}
         </table>
