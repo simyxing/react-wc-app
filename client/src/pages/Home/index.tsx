@@ -178,6 +178,20 @@ const Home: React.FC = () => {
     );
   };
 
+  //call api to cancel subscription
+  const handleCancelSubscription = async (subId: string) => {
+    await axios.put(
+      `http://wcreact.local/wp-json/wr_wc_react/update_status?subscription=${subId}&status=pending-cancel`
+    );
+  };
+
+  //call api to reactivate subscription
+  const handleReactivateSubscription = async (subId: string) => {
+    await axios.put(
+      `http://wcreact.local/wp-json/wr_wc_react/update_status?subscription=${subId}&status=active`
+    );
+  };
+
   return (
     <div className={styles.container}>
       <h1>Welcome!</h1>
@@ -320,7 +334,8 @@ const Home: React.FC = () => {
             <td>payment_method</td>
             <td>needs_payment</td>
             <td>total</td>
-            <td>payment_url</td>
+            <td>next_payment_date_gmt</td>
+            <td>cancelled_date_gmt</td>
           </tr>
           {subscriptions.map(
             (s: {
@@ -331,6 +346,7 @@ const Home: React.FC = () => {
               total;
               payment_url;
               next_payment_date_gmt;
+              cancelled_date_gmt;
               test;
             }) => (
               <>
@@ -341,10 +357,26 @@ const Home: React.FC = () => {
                   <td>{`${s.needs_payment}`}</td>
                   <td>{s.total}</td>
                   <td>{s.next_payment_date_gmt}</td>
+                  <td>{s.cancelled_date_gmt}</td>
                   <td>
                     {!s.needs_payment && s.status === "active" && (
                       <button onClick={() => handleRenewNow(s.id)}>
                         Renew Now
+                      </button>
+                    )}
+                  </td>
+                  <td>
+                    {s.status !== "cancelled" &&
+                      s.status !== "pending-cancel" && (
+                        <button onClick={() => handleCancelSubscription(s.id)}>
+                          Cancel Subscription
+                        </button>
+                      )}
+                    {s.status === "pending-cancel" && (
+                      <button
+                        onClick={() => handleReactivateSubscription(s.id)}
+                      >
+                        Reactivate Subscription
                       </button>
                     )}
                   </td>
