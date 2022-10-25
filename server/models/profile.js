@@ -22,7 +22,6 @@ const profileSchema = new Schema(
     },
     wc_username: {
       type: String,
-      unique: true,
       minlength: 5,
     },
     wc_password: {
@@ -30,7 +29,6 @@ const profileSchema = new Schema(
       minlength: 5,
     },
     wc_id: {
-      unique: true,
       type: Number,
     },
     type: {
