@@ -1,17 +1,20 @@
 import axios from "axios";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   orderId?: number;
 };
 
 const SignUpForm: React.FC<Props> = () => {
+  const navigate = useNavigate();
+
   const signUpWithPlanSelected = async (plan: string) => {
     const data = {
-      firstName: "yxing 2",
-      lastName: "subs",
-      email: "simyxing2subscription@gmail.com",
-      wc_username: "yxing2subscription",
+      firstName: "yxing annual",
+      lastName: "final",
+      email: "simyxing+annual@gmail.com",
+      wc_username: "yxing0annual",
       wc_password: randomPasswordGenerator(),
       selectedPlan: plan,
       isPendingUpgrade: true,
@@ -32,14 +35,14 @@ const SignUpForm: React.FC<Props> = () => {
     });
 
     localStorage.setItem("email", data.email);
+    navigate("/");
   };
 
-  // FIXME: having error here
   const signUp = async () => {
     const data = {
-      firstName: "yxing 1",
+      firstName: "yxing 2",
       lastName: "without WC",
-      email: "simyxingnowc@gmail.com",
+      email: "simyxing+nowc2@gmail.com",
       type: "lite",
     };
 
@@ -47,6 +50,7 @@ const SignUpForm: React.FC<Props> = () => {
       data: data,
     });
     localStorage.setItem("email", data.email);
+    navigate("/");
   };
 
   const randomPasswordGenerator = () => {
@@ -80,9 +84,9 @@ const SignUpForm: React.FC<Props> = () => {
       <br />
       Sign Up only
       <br />
-      <form onSubmit={signUp}>
-        <button type="submit">Sign Up</button>
-      </form>
+      <button type="submit" onClick={() => signUp()}>
+        Sign Up
+      </button>
     </>
   );
 };
