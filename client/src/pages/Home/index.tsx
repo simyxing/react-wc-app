@@ -170,6 +170,17 @@ const Home: React.FC = () => {
     );
   };
 
+  // Allow user to get invoice for order
+  const handleInvoice = async (orderId: string) => {
+    window.open(
+      `http://wcreact.local/wp-json/wr_wc_react_auto_login/invoice?username=${encodeURIComponent(
+        userData.email
+      )}&pass=${encodeURIComponent(userData.wc_password)}&order=${orderId}`,
+      "popup",
+      "width=600,height=600"
+    );
+  };
+
   //call api to cancel subscription
   const handleCancelSubscription = async (subId: string) => {
     await axios.put(
@@ -273,6 +284,10 @@ const Home: React.FC = () => {
                       Pay
                     </button>
                   )}
+                </td>
+
+                <td>
+                  <button onClick={() => handleInvoice(o.id)}>Invoice</button>
                 </td>
               </tr>
             )
@@ -380,6 +395,11 @@ const Home: React.FC = () => {
                                   Pay
                                 </button>
                               )}
+                            </td>
+                            <td>
+                              <button onClick={() => handleInvoice(o.id)}>
+                                Invoice
+                              </button>
                             </td>
                           </tr>
                         )
