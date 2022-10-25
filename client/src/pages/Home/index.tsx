@@ -81,14 +81,13 @@ const Home: React.FC = () => {
     return password;
   };
 
-  // for Logged In user
-  // purchase PLUS product
+  // for user who are logged in (with/without wc account & without plan selected)
   const purchasePLUS = async (productId: number) => {
     if (!userData.wc_username || !userData.wc_password || !userData.wc_id) {
       // generate wc username & password
       // create wc account
       // & update profile
-      const wc_username = "yxnoacc";
+      const wc_username = "yxnoacc2";
       const wc_password = randomPasswordGenerator();
       await axios.put(`http://localhost:5001/profile/${userData.id}`, {
         data: {
@@ -125,6 +124,13 @@ const Home: React.FC = () => {
     );
   };
 
+  /**
+   * Allow user who are
+   * - logged in
+   * - have wc account
+   * - have select PLAN when they sign up
+   * to make purchase
+   */
   const handlePurchase = async (selected: string) => {
     window.open(
       `http://wcreact.local/wp-json/wr_wc_react_auto_login/login?username=${encodeURIComponent(
@@ -137,6 +143,7 @@ const Home: React.FC = () => {
     );
   };
 
+  // allow user to pay for pending payment orders
   const handlePay = async (paymentUrl: string) => {
     window.open(
       `http://wcreact.local/wp-json/wr_wc_react_auto_login/payment?username=${encodeURIComponent(
@@ -149,6 +156,7 @@ const Home: React.FC = () => {
     );
   };
 
+  // Allow user to renew subscrription (early renewal)
   const handleRenewNow = async (subId: string) => {
     const renewalURL = `http://wcreact.local/my-account/?subscription_renewal_early=${subId}&subscription_renewal=true`;
     window.open(
@@ -238,7 +246,7 @@ const Home: React.FC = () => {
             <td>status</td>
             <td>payment_method</td>
             <td>customer_id</td>
-            <td>needs_payment</td>
+            <td>PAID / UNPAID</td>
             <td>total</td>
             <td>payment_url</td>
           </tr>
@@ -257,7 +265,7 @@ const Home: React.FC = () => {
                 <td>{o.status}</td>
                 <td>{o.payment_method}</td>
                 <td>{o.customer_id}</td>
-                <td>{`${o.needs_payment}`}</td>
+                <td>{o.needs_payment ? "UNPAID" : "PAID"}</td>
                 <td>{o.total}</td>
                 <td>
                   {o.needs_payment && (
@@ -273,31 +281,32 @@ const Home: React.FC = () => {
       </div>
       <div>
         <h2>Subscriptions (Count: {subscriptionsCount})</h2>
-        <table border={1}>
-          <tr>
-            <td>id</td>
-            <td>status</td>
-            <td>payment_method</td>
-            <td>needs_payment</td>
-            <td>total</td>
-            <td>next_payment_date_gmt</td>
-            <td>cancelled_date_gmt</td>
-            <td>end_date_gmt</td>
-          </tr>
-          {subscriptions.map(
-            (s: {
-              id;
-              status;
-              payment_method;
-              needs_payment;
-              total;
-              payment_url;
-              next_payment_date_gmt;
-              cancelled_date_gmt;
-              end_date_gmt;
-              test;
-            }) => (
-              <>
+
+        {subscriptions.map(
+          (s: {
+            id;
+            status;
+            payment_method;
+            needs_payment;
+            total;
+            payment_url;
+            next_payment_date_gmt;
+            cancelled_date_gmt;
+            end_date_gmt;
+            test;
+          }) => (
+            <>
+              <table border={1}>
+                <tr>
+                  <td>id</td>
+                  <td>status</td>
+                  <td>payment_method</td>
+                  <td>needs_payment</td>
+                  <td>total</td>
+                  <td>next_payment_date_gmt</td>
+                  <td>cancelled_date_gmt</td>
+                  <td>end_date_gmt</td>
+                </tr>
                 <tr key={s.id}>
                   <td>{s.id}</td>
                   <td>{s.status}</td>
@@ -342,7 +351,7 @@ const Home: React.FC = () => {
                         <td>status</td>
                         <td>payment_method</td>
                         <td>date_paid</td>
-                        <td>needs_payment</td>
+                        <td>PAID / UNPAID</td>
                         <td>total</td>
                         <td>payment_url</td>
                       </tr>
@@ -361,7 +370,7 @@ const Home: React.FC = () => {
                             <td>{o.status}</td>
                             <td>{o.payment_method}</td>
                             <td>{o.date_paid}</td>
-                            <td>{`${o.needs_payment}`}</td>
+                            <td>{o.needs_payment ? "UNPAID" : "PAID"}</td>
                             <td>{o.total}</td>
                             <td>
                               {o.needs_payment && (
@@ -378,13 +387,11 @@ const Home: React.FC = () => {
                     </table>
                   </td>
                 </tr>
-                <tr>
-                  <td colSpan={9}>End of One Subscription</td>
-                </tr>
-              </>
-            )
-          )}
-        </table>
+              </table>
+              <br />
+            </>
+          )
+        )}
       </div>
     </div>
   );
