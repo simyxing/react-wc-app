@@ -33,7 +33,7 @@ const upgradeProfile = async (req, res, next) => {
 
     res.json({ data: userData });
   } catch (error) {
-    throw error;
+    res.json({ message: "Upgrade Profile Failed" });
   }
 };
 
@@ -45,7 +45,7 @@ const updateProfile = async (req, res, next) => {
 
     res.json({ data: userData });
   } catch (error) {
-    throw error;
+    res.json({ message: "Update Profile Failed" });
   }
 };
 

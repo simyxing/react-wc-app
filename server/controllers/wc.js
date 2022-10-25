@@ -22,7 +22,7 @@ const createAccount = (req, res, next) => {
       res.json({ message: "WC account created" });
     })
     .catch((error) => {
-      throw error;
+      res.json({ message: "create WC account Failed" });
     });
 };
 
@@ -98,7 +98,7 @@ const getSubscriptionsByCustId = (req, res, next) => {
       });
     })
     .catch((error) => {
-      console.log(error.response.data);
+      console.log(error);
     });
 };
 
